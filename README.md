@@ -10,7 +10,7 @@ LiveData- A live data
 ViewModel - Stores UI-related data that isn't destroyed on UI changes.
 
 Room - Persistence library provides an abstraction layer over SQLite to allow for more robust database access while harnessing the full power of SQLite.
-Dependency Injection -
+Dependency Injection - - - - 
 Hilt-Dagger - Standard library to incorporate Dagger dependency injection into an Android application.
 Hilt-ViewModel - DI for injecting ViewModel.
 Architecture
