@@ -3,7 +3,6 @@ package gentle.hilt.learnunittests2.ui.fragments
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeLeft
@@ -20,12 +19,12 @@ import gentle.hilt.learnunittests2.db.ShoppingItem
 import gentle.hilt.learnunittests2.getOrAwaitValue
 import gentle.hilt.learnunittests2.launchFragmentInHiltContainer
 import gentle.hilt.learnunittests2.ui.ShoppingViewModel
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import javax.inject.Inject
 
 @HiltAndroidTest
@@ -42,6 +41,8 @@ class ShoppingFragmentTest {
     @Inject
     lateinit var testShoppingFragmentFactory: TestShoppingFragmentFactory
 
+
+
     @Before
     fun setup() {
         hiltRule.inject()
@@ -49,14 +50,16 @@ class ShoppingFragmentTest {
 
     @Test
     fun clickAddShoppingItemButton_navigateToAddShoppingItemFragment() {
-        val navController = mock(NavController::class.java)
-        launchFragmentInHiltContainer<ShoppingFragment> {
+        val navController: NavController = mockk(relaxed = true)
+        launchFragmentInHiltContainer<ShoppingFragment>(
+            fragmentFactory = testShoppingFragmentFactory
+        ) {
             Navigation.setViewNavController(requireView(), navController)
         }
 
         onView(withId(R.id.fabAddShoppingItem)).perform(click())
 
-        verify(navController).navigate(R.id.action_shoppingFragment_to_addShoppingItemFragment)
+        coVerify {(navController).navigate(R.id.action_shoppingFragment_to_addShoppingItemFragment)}
     }
 
     @Test

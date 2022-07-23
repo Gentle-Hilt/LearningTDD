@@ -1,5 +1,6 @@
 package gentle.hilt.learnunittests2.ui.fragments
 
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -12,22 +13,19 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import gentle.hilt.learnunittests2.MainCoroutineRule
 import gentle.hilt.learnunittests2.R
+import gentle.hilt.learnunittests2.TestShoppingFragmentFactory
 import gentle.hilt.learnunittests2.db.ShoppingItem
 import gentle.hilt.learnunittests2.getOrAwaitValue
 import gentle.hilt.learnunittests2.launchFragmentInHiltContainer
 import gentle.hilt.learnunittests2.repository.FakeDefaultShoppingRepository
-import gentle.hilt.learnunittests2.ui.ShoppingFragmentFactory
 import gentle.hilt.learnunittests2.ui.ShoppingViewModel
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
@@ -43,48 +41,54 @@ class AddShoppingItemFragmentTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Inject
-    lateinit var shoppingFragmentFactory: ShoppingFragmentFactory
-
-
+    lateinit var testShoppingFragmentFactory: TestShoppingFragmentFactory
 
     private lateinit var viewModel: ShoppingViewModel
+
+    lateinit var navController: NavController
 
     @Before
     fun setUp() {
         viewModel = ShoppingViewModel(FakeDefaultShoppingRepository())
 
+        navController = mockk(relaxed = true)
         hiltRule.inject()
     }
 
     @Test
-    fun pressBackButton_popBackStack(){
-        val navController = mock(NavController::class.java)
-        launchFragmentInHiltContainer<AddShoppingItemFragment> {
+    fun pressBackButton_popBackStack() {
+
+
+        launchFragmentInHiltContainer<AddShoppingItemFragment>(
+            fragmentFactory = testShoppingFragmentFactory
+        ) {
             Navigation.setViewNavController(requireView(), navController)
         }
         pressBack()
 
-        verify(navController).popBackStack()
+        coVerify { (navController).popBackStack() }
     }
 
     @Test
-    fun clickIvShoppingImageButton_navigateToImagePickFragment(){
-        val navController = mock(NavController::class.java)
-        launchFragmentInHiltContainer<AddShoppingItemFragment> {
+    fun clickIvShoppingImageButton_navigateToImagePickFragment() {
+        launchFragmentInHiltContainer<AddShoppingItemFragment>(
+            fragmentFactory = testShoppingFragmentFactory
+        ) {
             Navigation.setViewNavController(requireView(), navController)
         }
         onView(withId(R.id.ivShoppingImage)).perform(click())
 
-        verify(navController).navigate(R.id.action_addShoppingItemFragment_to_pickImageFragment)
+        coVerify {(navController).navigate(R.id.action_addShoppingItemFragment_to_pickImageFragment)}
     }
 
     @Test
-    fun emptyImageUrlAfterPressingBackButton(){
-        val navController = mock(NavController::class.java)
+    fun emptyImageUrlAfterPressingBackButton() {
         val fakeViewModel = viewModel
         val url = "url"
 
-        launchFragmentInHiltContainer<AddShoppingItemFragment> {
+        launchFragmentInHiltContainer<AddShoppingItemFragment>(
+            fragmentFactory = testShoppingFragmentFactory
+        ) {
             Navigation.setViewNavController(requireView(), navController)
             fakeViewModel.setCurrentImageUrl(url)
             viewModel = fakeViewModel
@@ -97,10 +101,10 @@ class AddShoppingItemFragmentTest {
     }
 
     @Test
-    fun clickInsertIntoDb_shoppingItemInsertedIntoDb(){
+    fun clickInsertIntoDb_shoppingItemInsertedIntoDb() {
         val fakeViewModel = viewModel
         launchFragmentInHiltContainer<AddShoppingItemFragment>(
-            fragmentFactory = shoppingFragmentFactory
+            fragmentFactory = testShoppingFragmentFactory
         ) {
             viewModel = fakeViewModel
         }

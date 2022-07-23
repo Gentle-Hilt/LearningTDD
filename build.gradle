@@ -7,3 +7,13 @@ plugins {
     id 'com.google.dagger.hilt.android' version '2.42' apply false
     id 'androidx.navigation.safeargs.kotlin' version '2.4.2' apply false
 }
+
+subprojects {
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.objenesis') {
+                details.useVersion '2.6'
+            }
+        }
+    }
+}
